@@ -9,9 +9,14 @@ We always spend 30 minutes arguing over picking a place, so I built a wheel to j
 3. Let it decide. No arguing allowed.
 
 ## Tech stack
-- React (frontend)
+- Pure HTML, CSS, and Vanilla JavaScript (frontend)
+- Insane 3D-styled CSS Wheel (no Canvas libraries!)
 - Express + Node.js (backend)
 - MongoDB (to save the results... just in case someone claims the wheel is rigged)
+- LocalStorage (failsafe fallback when the database server isn't running)
 
 ## How to run locally
-Run `npm run build` in the `client` folder, and then run `node server.js` in the main folder. Then open `http://localhost:3000`.
+Because everything is now ultra-fast pure Vanilla JavaScript, there are no build steps!
+Just run `node server.js` in the main folder to start the backend, and then open `http://localhost:3000`.
+
+Alternatively, you could even just double-click `docs/index.html` to run the frontend entirely offline via the LocalStorage fallback!
