@@ -10,10 +10,8 @@ We always spend 30 minutes arguing over picking a place, so I built a wheel to j
 
 ## Tech stack
 - Pure HTML, CSS, and Vanilla JavaScript (frontend)
-- Insane 3D-styled CSS Wheel (no Canvas libraries!)
 - Express + Node.js (backend)
 - MongoDB (to save the results... just in case someone claims the wheel is rigged)
-- LocalStorage (failsafe fallback when the database server isn't running)
 
 ## How to run locally
 Because everything is now ultra-fast pure Vanilla JavaScript, there are no build steps!
