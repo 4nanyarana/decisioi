@@ -166,31 +166,57 @@ export default function App() {
           result: winner.text
         })
       });
+      if (!res.ok) throw new Error('API unavailable');
       const data = await res.json();
       setResult({ ...winner, dbId: data._id });
     } catch(e) {
-      console.error(e);
+      console.warn("Backend unavailable (likely on GitHub Pages). Using LocalStorage.");
+      const localId = 'loc_' + Date.now();
+      const newSpin = {
+        _id: localId,
+        options: valid.map(o => o.text.trim()),
+        result: winner.text,
+        mood: mood || 'default',
+        regretStatus: 'pending',
+        timestamp: new Date().toISOString()
+      };
+      const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+      saved.unshift(newSpin);
+      localStorage.setItem('decisio_spins', JSON.stringify(saved.slice(0, 50)));
+      setResult({ ...winner, dbId: localId });
     }
   };
 
   const loadStats = async () => {
     try {
       const r = await fetch('/api/stats');
+      if (!r.ok) throw new Error('API unavailable');
       const d = await r.json();
       setSpins(d);
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+      console.warn("Using LocalStorage for stats.");
+      const local = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+      setSpins(local);
+    }
   };
 
   const handleRegret = async (status) => {
     if (!result || !result.dbId) return;
     try {
-      await fetch('/api/spin/' + result.dbId + '/regret', {
+      const res = await fetch('/api/spin/' + result.dbId + '/regret', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ regretStatus: status })
       });
+      if (!res.ok) throw new Error('API unavailable');
       setResult({ ...result, regretStatus: status });
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+      console.warn("Using LocalStorage to save regret status.");
+      const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+      const updated = saved.map(s => s._id === result.dbId ? { ...s, regretStatus: status } : s);
+      localStorage.setItem('decisio_spins', JSON.stringify(updated));
+      setResult({ ...result, regretStatus: status });
+    }
   };
 
   return (
