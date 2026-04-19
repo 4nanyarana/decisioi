@@ -1,0 +1,29 @@
+{
+  "name": "decisio",
+  "version": "1.0.0",
+  "description": "a simple web app to help make decisions because my friends and i can never choose what to eat.  just a very basic html version right now, gonna add the actual spinning wheel later.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4nanyarana/decisio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/4nanyarana/decisio/issues"
+  },
+  "homepage": "https://github.com/4nanyarana/decisio#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.4.1"
+  }
+}
