@@ -13,8 +13,8 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/decisio';
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from React dist
-app.use(express.static(path.join(__dirname, 'client/dist')));
+// Serve static files from public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // DB Connection
 mongoose.connect(MONGO_URI)
@@ -62,9 +62,9 @@ app.put('/api/spin/:id/regret', async (req, res) => {
     }
 })
 
-// Catch-all to serve index.html for React Router (if needed later)
+// Catch-all to serve index.html
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
