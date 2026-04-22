@@ -1,4 +1,21 @@
-// Decisio - Vanilla JS Main Application
+// Decisio - Vanilla JS Main Application with Firebase
+
+// --- FIREBASE CONFIGURATION ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAdY5PFd10UxsucH0WAHtZh33yAbWIsy9Y",
+  authDomain: "decisio-1306.firebaseapp.com",
+  projectId: "decisio-1306",
+  storageBucket: "decisio-1306.firebasestorage.app",
+  messagingSenderId: "964454907003",
+  appId: "1:964454907003:web:382da474360027add536de",
+  measurementId: "G-8CHQ5QD19Q"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -56,13 +73,83 @@ class DecisioApp {
     this.result = null;
     this.spins = [];
     this.overthinkingTimer = null;
+    this.currentUser = null;
 
     this.cacheDOM();
     this.bindEvents();
     this.renderOptions();
     this.updateWheelCSS();
     this.startOverthinking();
-    this.loadStats();
+    
+    // Auth Listener
+    this.setupAuth();
+  }
+
+  setupAuth() {
+    this.authModal = document.getElementById('authModal');
+    this.authForm = document.getElementById('authForm');
+    this.authEmail = document.getElementById('authEmail');
+    this.authPassword = document.getElementById('authPassword');
+    this.authSubmitBtn = document.getElementById('authSubmitBtn');
+    this.authToggleBtn = document.getElementById('authToggleBtn');
+    this.authToggleText = document.getElementById('authToggleText');
+    this.authTitle = document.getElementById('authTitle');
+    this.authErrorMsg = document.getElementById('authErrorMsg');
+    this.logoutBtn = document.getElementById('logoutBtn');
+    this.greetingUser = document.getElementById('greetingUser');
+    this.isLoginMode = true;
+
+    // Toggle Login/Signup
+    this.authToggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.isLoginMode = !this.isLoginMode;
+      this.authTitle.innerText = this.isLoginMode ? 'Welcome Back' : 'Create Account';
+      this.authSubmitBtn.innerText = this.isLoginMode ? 'Log In' : 'Sign Up';
+      this.authToggleText.innerText = this.isLoginMode ? "Don't have an account?" : "Already have an account?";
+      this.authToggleBtn.innerText = this.isLoginMode ? "Sign Up" : "Log In";
+      this.authErrorMsg.innerText = '';
+    });
+
+    // Handle Form Submit
+    this.authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = this.authEmail.value;
+      const pwd = this.authPassword.value;
+      this.authErrorMsg.innerText = '';
+      this.authSubmitBtn.disabled = true;
+
+      try {
+        if (this.isLoginMode) {
+          await auth.signInWithEmailAndPassword(email, pwd);
+        } else {
+          await auth.createUserWithEmailAndPassword(email, pwd);
+        }
+      } catch (err) {
+        this.authErrorMsg.innerText = err.message;
+      }
+      this.authSubmitBtn.disabled = false;
+    });
+
+    // Handle Logout
+    this.logoutBtn.addEventListener('click', () => auth.signOut());
+
+    // Watch Auth State
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        this.currentUser = user;
+        this.authModal.classList.add('hidden');
+        this.logoutBtn.classList.remove('hidden');
+        this.greetingUser.innerText = user.email.split('@')[0];
+        this.loadStats();
+      } else {
+        this.currentUser = null;
+        this.authModal.classList.remove('hidden');
+        this.logoutBtn.classList.add('hidden');
+        this.greetingUser.innerText = 'Decisive One';
+        this.spins = [];
+        this.renderStats();
+      }
+    });
   }
 
   cacheDOM() {
@@ -299,52 +386,58 @@ class DecisioApp {
     this.regretPrompt.classList.remove('hidden');
     this.regretStatusMessage.classList.add('hidden');
 
-    // Save to DB
-    try {
-      const res = await fetch('/api/spin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    // Save to Firebase Firestore
+    if (this.currentUser) {
+      try {
+        const docRef = await db.collection("spins").add({
+          userId: this.currentUser.uid,
           options: valid.map(o => o.text.trim()),
           result: winner.text,
-          mood: this.mood
-        })
-      });
-      if (!res.ok) throw new Error('API Error');
-      const data = await res.json();
-      this.result.dbId = data._id;
-    } catch(e) {
-      console.warn("Backend unavailable. Using LocalStorage.");
-      const localId = 'loc_' + Date.now();
-      const newSpin = {
-        _id: localId,
-        options: valid.map(o => o.text.trim()),
-        result: winner.text,
-        mood: this.mood,
-        regretStatus: 'pending',
-        timestamp: new Date().toISOString()
-      };
-      const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
-      saved.unshift(newSpin);
-      localStorage.setItem('decisio_spins', JSON.stringify(saved.slice(0, 50)));
-      this.result.dbId = localId;
+          mood: this.mood,
+          regretStatus: 'pending',
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        this.result.dbId = docRef.id;
+      } catch(e) {
+        console.error("Firebase save error", e);
+        this.fallbackLocalStorageSave(winner, valid);
+      }
+    } else {
+      this.fallbackLocalStorageSave(winner, valid);
     }
 
     this.loadStats();
   }
 
+  fallbackLocalStorageSave(winner, valid) {
+    console.warn("Using LocalStorage fallback.");
+    const localId = 'loc_' + Date.now();
+    const newSpin = {
+      _id: localId,
+      options: valid.map(o => o.text.trim()),
+      result: winner.text,
+      mood: this.mood,
+      regretStatus: 'pending',
+      timestamp: new Date().toISOString()
+    };
+    const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+    saved.unshift(newSpin);
+    localStorage.setItem('decisio_spins', JSON.stringify(saved.slice(0, 50)));
+    this.result.dbId = localId;
+  }
   // --- Regret & Stats ---
   async handleRegret(status) {
     if (!this.result || !this.result.dbId) return;
 
-    try {
-      const res = await fetch('/api/spin/' + this.result.dbId + '/regret', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ regretStatus: status })
-      });
-      if (!res.ok) throw new Error('API unavailable');
-    } catch(e) {
+    if (this.currentUser && !this.result.dbId.toString().startsWith('loc_')) {
+      try {
+        await db.collection("spins").doc(this.result.dbId).update({
+          regretStatus: status
+        });
+      } catch (e) {
+        console.error("Firebase update error", e);
+      }
+    } else {
       // Local storage fallback
       const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
       const updated = saved.map(s => s._id === this.result.dbId ? { ...s, regretStatus: status } : s);
@@ -374,11 +467,23 @@ class DecisioApp {
 
   async loadStats() {
     let stats = [];
-    try {
-      const r = await fetch('/api/stats');
-      if (!r.ok) throw new Error('API Error');
-      stats = await r.json();
-    } catch(e) {
+    if (this.currentUser) {
+      try {
+        const snapshot = await db.collection("spins")
+          .where("userId", "==", this.currentUser.uid)
+          .orderBy("timestamp", "desc")
+          .limit(10)
+          .get();
+          
+        snapshot.forEach(doc => {
+          stats.push({ _id: doc.id, ...doc.data() });
+        });
+      } catch(e) {
+        console.error("Firestore stats load error", e);
+        // Fallback to local
+        stats = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+      }
+    } else {
       stats = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
     }
 
