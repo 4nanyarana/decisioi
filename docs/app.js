@@ -125,9 +125,6 @@ class DecisioApp {
     this.resultText = document.getElementById('resultText');
     this.regretPrompt = document.getElementById('regretPrompt');
     this.regretStatusMessage = document.getElementById('regretStatusMessage');
-    this.statsList = document.getElementById('statsList');
-    this.totalSpinsStat = document.getElementById('totalSpinsStat');
-    this.successRateStat = document.getElementById('successRateStat');
   }
 
   bindEvents() {
@@ -352,78 +349,11 @@ class DecisioApp {
   }
 
   async loadStats() {
-    let stats = [];
-    if (this.currentUser) {
-      try {
-        const snapshot = await db.collection("spins")
-          .where("userId", "==", this.currentUser.uid)
-          .get();
-          
-        snapshot.forEach(doc => {
-          stats.push({ _id: doc.id, ...doc.data() });
-        });
-
-        // Manual sort and limit to bypass missing Firestore composite index
-        stats.sort((a, b) => {
-          const tA = a.timestamp && a.timestamp.toMillis ? a.timestamp.toMillis() : 0;
-          const tB = b.timestamp && b.timestamp.toMillis ? b.timestamp.toMillis() : 0;
-          return tB - tA;
-        });
-        stats = stats.slice(0, 10);
-      } catch(e) {
-        console.error("Firestore stats load error", e);
-        // Fallback to local
-        stats = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
-      }
-    } else {
-      stats = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
-    }
-
-    this.spins = stats;
-    this.renderStats();
+    // Analytics removed
   }
 
   renderStats() {
-    this.statsList.innerHTML = '';
-    let satisfied = 0;
-    let totalRegretChecked = 0;
-
-    this.spins.forEach(s => {
-      const li = document.createElement('li');
-      li.className = 'activity-item';
-      
-      let badgeHtml = '';
-      if (s.regretStatus && s.regretStatus !== 'pending') {
-        totalRegretChecked++;
-        if (s.regretStatus === 'satisfied') {
-          satisfied++;
-          badgeHtml = `<span class="badge badge-satisfied">Satisfied 😊</span>`;
-        } else {
-          badgeHtml = `<span class="badge badge-regret">Regret 😞</span>`;
-        }
-      }
-
-      const optionsArray = Array.isArray(s.options) ? s.options : [];
-      const optionsText = optionsArray.length > 0 
-        ? (typeof optionsArray[0] === 'string' ? optionsArray.join(', ') : optionsArray.map(o => o.text || 'Unknown').join(', '))
-        : 'Unknown';
-
-      li.innerHTML = `
-        <strong>${s.result}</strong>
-        <div class="meta">From: ${optionsText}</div>
-        ${badgeHtml}
-      `;
-      this.statsList.appendChild(li);
-    });
-
-    this.totalSpinsStat.innerText = this.spins.length;
-    
-    if (totalRegretChecked > 0) {
-      const rate = Math.round((satisfied / totalRegretChecked) * 100);
-      this.successRateStat.innerText = `${rate}%`;
-    } else {
-      this.successRateStat.innerText = '-';
-    }
+    // Analytics removed
   }
 }
 

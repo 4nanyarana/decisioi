@@ -137,10 +137,9 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* Grid Layout */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1.25fr;
   gap: 2rem;
   flex: 1;
 }
@@ -456,66 +455,7 @@ select:focus {
   font-size: 0.9rem;
 }
 
-/* Stats Area */
-.stats-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-.stat-card {
-  background: rgba(0,0,0,0.2);
-  padding: 1rem;
-  border-radius: 12px;
-  text-align: center;
-}
-.stat-value {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--text-main);
-}
-.text-emerald {
-  color: var(--secondary-glow);
-}
-.stat-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-top: 4px;
-}
 
-.activity-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.activity-item {
-  background: rgba(255,255,255,0.03);
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid var(--panel-border);
-  font-size: 0.9rem;
-}
-.activity-item strong {
-  display: block;
-  font-size: 1.05rem;
-  color: white;
-  margin-bottom: 4px;
-}
-.activity-item .meta {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  margin-top: 6px;
-}
-.badge-satisfied { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-.badge-regret { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
