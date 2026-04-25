@@ -10,8 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css" />
-  <!-- Confetti script -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
@@ -43,23 +42,8 @@
       <section class="panel options-panel glass">
         <h2 class="panel-title">Decision Options</h2>
         
-        <div class="mood-selector">
-          <label for="mood">Mode:</label>
-          <div class="select-wrapper">
-             <select id="moodSelect">
-                <option value="default">Default</option>
-                <option value="safe">Safe (Chill)</option>
-                <option value="hangry">Hangry (Fast!)</option>
-             </select>
-          </div>
-        </div>
 
-        <div class="overthinking-container" title="Overthinking Meter">
-          <div class="meter-text">Overthinking Meter</div>
-          <div class="confidence-meter">
-            <div id="confidenceFill" class="confidence-fill"></div>
-          </div>
-        </div>
+
 
         <div id="optionsList" class="options-list">
           <!-- JS will populate options here -->
@@ -70,14 +54,13 @@
 
       <!-- Center Wheel Area -->
       <section class="wheel-section">
-        <h1 class="main-title">Stop overthinking.<br/><span class="highlight">Just spin it.</span></h1>
+        <h1 class="main-title">Stop overthinking.<br/><span class="highlight">Just decide.</span></h1>
         
-        <div class="wheel-container">
-          <div class="pointer"></div>
-          <div id="wheel" class="wheel">
-            <!-- Dynamic conic gradient background -->
+        <div class="shuffle-container glass" style="margin-top: 2rem;">
+          <div id="shuffleBox" class="shuffle-box">
+            <span id="shuffleText">Ready?</span>
           </div>
-          <button id="spinBtn" class="spin-center-btn">SPIN</button>
+          <button id="spinBtn" class="spin-center-btn">SHUFFLE</button>
         </div>
 
         <div id="resultModal" class="result-modal glass hidden">

@@ -17,36 +17,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playTick(freq = 400) {
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.frequency.value = freq;
-  osc.type = 'triangle';
-  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.1);
-}
-
-function playWin() {
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
-  osc.type = 'sine';
-  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 1);
-}
 
 const easeOut = (t, b, c, d) => {
   const ts = (t /= d) * t;
@@ -66,20 +36,14 @@ class DecisioApp {
       { id: 2, text: 'Burgers', weight: 1 },
       { id: 3, text: 'Tacos', weight: 1 }
     ];
-    this.mood = 'default';
     this.isSpinning = false;
-    this.currentAngle = 0;
-    this.overthinkingLevel = 100;
     this.result = null;
     this.spins = [];
-    this.overthinkingTimer = null;
     this.currentUser = null;
 
     this.cacheDOM();
     this.bindEvents();
     this.renderOptions();
-    this.updateWheelCSS();
-    this.startOverthinking();
     
     // Auth Listener
     this.setupAuth();
@@ -146,8 +110,7 @@ class DecisioApp {
         this.authModal.classList.remove('hidden');
         this.logoutBtn.classList.add('hidden');
         this.greetingUser.innerText = 'Decisive One';
-        this.spins = [];
-        this.renderStats();
+        this.loadStats();
       }
     });
   }
@@ -155,9 +118,8 @@ class DecisioApp {
   cacheDOM() {
     this.optionsList = document.getElementById('optionsList');
     this.addOptionBtn = document.getElementById('addOptionBtn');
-    this.moodSelect = document.getElementById('moodSelect');
-    this.confidenceFill = document.getElementById('confidenceFill');
-    this.wheel = document.getElementById('wheel');
+    this.shuffleBox = document.getElementById('shuffleBox');
+    this.shuffleText = document.getElementById('shuffleText');
     this.spinBtn = document.getElementById('spinBtn');
     this.resultModal = document.getElementById('resultModal');
     this.resultText = document.getElementById('resultText');
@@ -170,38 +132,14 @@ class DecisioApp {
 
   bindEvents() {
     this.addOptionBtn.addEventListener('click', () => this.addOption());
-    this.moodSelect.addEventListener('change', (e) => this.setMood(e.target.value));
     this.spinBtn.addEventListener('click', () => this.spin());
   }
 
-  setMood(newMood) {
-    this.mood = newMood;
-    document.body.className = `theme-${newMood}`;
-    this.resetOverthinking();
-  }
 
-  startOverthinking() {
-    if (this.overthinkingTimer) clearInterval(this.overthinkingTimer);
-    this.overthinkingTimer = setInterval(() => {
-      if (!this.isSpinning && !this.result) {
-        this.overthinkingLevel = Math.max(0, this.overthinkingLevel - 1);
-        this.updateOverthinkingUI();
-      }
-    }, 300);
-  }
 
   resetOverthinking() {
-    this.overthinkingLevel = 100;
-    this.updateOverthinkingUI();
     this.resultModal.classList.add('hidden');
     this.result = null;
-  }
-
-  updateOverthinkingUI() {
-    this.confidenceFill.style.width = `${this.overthinkingLevel}%`;
-    if (this.overthinkingLevel > 50) this.confidenceFill.style.backgroundColor = '#10b981';
-    else if (this.overthinkingLevel > 20) this.confidenceFill.style.backgroundColor = '#f59e0b';
-    else this.confidenceFill.style.backgroundColor = '#ef4444';
   }
 
   // --- Options Management ---
@@ -279,38 +217,7 @@ class DecisioApp {
   }
 
   updateWheelCSS() {
-    const valid = this.getValidOptions();
-    this.wheel.innerHTML = ''; // clear labels
-    if (valid.length === 0) {
-      this.wheel.style.background = '#111';
-      return;
-    }
-
-    const totalWeight = valid.reduce((sum, o) => sum + o.weight, 0);
-    let accum = 0;
-    const gradients = [];
-
-    valid.forEach((opt, idx) => {
-      const sliceSize = (opt.weight / totalWeight) * 360;
-      const degStart = accum;
-      const degEnd = accum + sliceSize;
-      const color = HSL_COLORS[idx % HSL_COLORS.length];
-      
-      gradients.push(`${color} ${degStart}deg ${degEnd}deg`);
-
-      // Add label
-      const midAngle = degStart + (sliceSize / 2);
-      const lbl = document.createElement('div');
-      lbl.className = 'wheel-label';
-      lbl.innerText = opt.text;
-      lbl.style.transform = `translate(-50%, -50%) rotate(${midAngle - 90}deg) translate(120px) rotate(90deg)`;
-      this.wheel.appendChild(lbl);
-
-      accum += sliceSize;
-    });
-
-    this.wheel.style.background = `conic-gradient(${gradients.join(', ')})`;
-    this.wheel.style.transform = `rotate(${this.currentAngle}rad)`;
+    // Keep function signature empty to satisfy event calls without breaking UI
   }
 
   // --- Spinning Logic ---
@@ -321,65 +228,46 @@ class DecisioApp {
     this.isSpinning = true;
     this.resetOverthinking();
     this.spinBtn.disabled = true;
+    this.spinBtn.innerText = "SHUFFLING...";
 
-    const spinTimeTotal = this.mood === 'hangry' ? 2000 : 4000 + Math.random() * 2000;
-    const spinVelocity = this.mood === 'hangry' ? 40 : 20 + Math.random() * 10;
+    const spinTimeTotal = 3000;
     let spinTime = 0;
-    let lastAngle = this.currentAngle;
-    let lastTickAngle = this.currentAngle;
+    const intervalTime = 100;
 
-    const rotateWheel = () => {
-      spinTime += 30;
-      if (spinTime >= spinTimeTotal) {
-        this.stopRotateWheel(lastAngle, valid);
-        return;
-      }
+    const shuffleInterval = setInterval(() => {
+      spinTime += intervalTime;
       
-      const spinAngle = easeOut(spinTime, 0, spinVelocity, spinTimeTotal) * (Math.PI / 180);
-      lastAngle += spinAngle;
-      this.currentAngle = lastAngle;
+      const randomIndex = Math.floor(Math.random() * valid.length);
+      this.shuffleText.innerText = valid[randomIndex].text;
 
-      this.wheel.style.transform = `rotate(${this.currentAngle}rad)`;
 
-      // Tick sound
-      if (lastAngle - lastTickAngle > Math.PI / valid.length) {
-        playTick(400 + Math.random() * 200);
-        lastTickAngle = lastAngle;
+      if (spinTime >= spinTimeTotal) {
+        clearInterval(shuffleInterval);
+        this.stopRotateWheel(valid);
       }
-
-      requestAnimationFrame(rotateWheel);
-    };
-
-    requestAnimationFrame(rotateWheel);
+    }, intervalTime);
   }
 
-  async stopRotateWheel(finalAngle, valid) {
+  async stopRotateWheel(valid) {
     this.isSpinning = false;
     this.spinBtn.disabled = false;
-    playWin();
+    this.spinBtn.innerText = "SHUFFLE";
 
-    if (this.mood !== 'hangry') {
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 100 });
-    } else {
-      confetti({ particleCount: 50, spread: 100, colors: ['#ef4444', '#f97316'], origin: { y: 0.6 }, zIndex: 100 });
-    }
 
+    // Weighted random selection
     const totalWeights = valid.reduce((sum, opt) => sum + opt.weight, 0);
-    const degrees = finalAngle * 180 / Math.PI;
+    let randomVal = Math.random() * totalWeights;
     
     let winner = valid[0];
-    let accumulated = 0;
-    const pointerAngle = (360 - (degrees % 360)) % 360;
-    
     for (let opt of valid) {
-      const sliceSize = (opt.weight / totalWeights) * 360;
-      if (pointerAngle >= accumulated && pointerAngle < accumulated + sliceSize) {
+      if (randomVal < opt.weight) {
         winner = opt;
         break;
       }
-      accumulated += sliceSize;
+      randomVal -= opt.weight;
     }
 
+    this.shuffleText.innerText = winner.text;
     this.result = { ...winner };
     this.resultText.innerText = winner.text;
     this.resultModal.classList.remove('hidden');
@@ -393,7 +281,6 @@ class DecisioApp {
           userId: this.currentUser.uid,
           options: valid.map(o => o.text.trim()),
           result: winner.text,
-          mood: this.mood,
           regretStatus: 'pending',
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -416,7 +303,6 @@ class DecisioApp {
       _id: localId,
       options: valid.map(o => o.text.trim()),
       result: winner.text,
-      mood: this.mood,
       regretStatus: 'pending',
       timestamp: new Date().toISOString()
     };
@@ -471,13 +357,19 @@ class DecisioApp {
       try {
         const snapshot = await db.collection("spins")
           .where("userId", "==", this.currentUser.uid)
-          .orderBy("timestamp", "desc")
-          .limit(10)
           .get();
           
         snapshot.forEach(doc => {
           stats.push({ _id: doc.id, ...doc.data() });
         });
+
+        // Manual sort and limit to bypass missing Firestore composite index
+        stats.sort((a, b) => {
+          const tA = a.timestamp && a.timestamp.toMillis ? a.timestamp.toMillis() : 0;
+          const tB = b.timestamp && b.timestamp.toMillis ? b.timestamp.toMillis() : 0;
+          return tB - tA;
+        });
+        stats = stats.slice(0, 10);
       } catch(e) {
         console.error("Firestore stats load error", e);
         // Fallback to local
@@ -511,9 +403,14 @@ class DecisioApp {
         }
       }
 
+      const optionsArray = Array.isArray(s.options) ? s.options : [];
+      const optionsText = optionsArray.length > 0 
+        ? (typeof optionsArray[0] === 'string' ? optionsArray.join(', ') : optionsArray.map(o => o.text || 'Unknown').join(', '))
+        : 'Unknown';
+
       li.innerHTML = `
         <strong>${s.result}</strong>
-        <div class="meta">From: ${s.options.join(', ')}</div>
+        <div class="meta">From: ${optionsText}</div>
         ${badgeHtml}
       `;
       this.statsList.appendChild(li);
