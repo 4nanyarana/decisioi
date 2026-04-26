@@ -11,40 +11,30 @@
   
   <link rel="stylesheet" href="styles.css" />
 
-
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="theme-default">
+<body>
   
-  <div class="background-effects">
-    <div class="glow glow-purple"></div>
-    <div class="glow glow-emerald"></div>
-  </div>
-
   <main class="dashboard-container">
-    <header class="app-header glass">
+    <header class="app-header">
       <div class="logo">
-        <div class="logo-icon"></div>
         DECISIO
       </div>
       <div class="header-nav">
         <!-- Dashboard info -->
-        <span class="greeting">Hello, <strong id="greetingUser">Decisive One</strong> ✨</span>
-        <button id="logoutBtn" class="btn btn-outline hidden" style="margin-left: 1rem; padding: 0.2rem 1rem;">Logout</button>
+        <span class="greeting">Hello, <strong id="greetingUser">Decisive One</strong></span>
+        <button id="logoutBtn" class="btn hidden">Logout</button>
       </div>
     </header>
 
     <div class="content-grid">
       <!-- Options Sidebar -->
-      <section class="panel options-panel glass">
+      <section class="panel options-panel">
         <h2 class="panel-title">Decision Options</h2>
         
-
-
-
         <div id="optionsList" class="options-list">
           <!-- JS will populate options here -->
         </div>
@@ -54,55 +44,53 @@
 
       <!-- Center Wheel Area -->
       <section class="wheel-section">
-        <h1 class="main-title">Stop overthinking.<br/><span class="highlight">Just decide.</span></h1>
+        <h1 class="main-title">Stop overthinking. <br/><span class="highlight">Just decide.</span></h1>
         
-        <div class="shuffle-container" style="margin-top: 2rem;">
+        <div class="shuffle-container">
           <div id="shuffleBox" class="shuffle-box">
             <span id="shuffleText">Ready?</span>
           </div>
           <button id="spinBtn" class="spin-center-btn">SHUFFLE</button>
         </div>
 
-        <div id="resultModal" class="result-modal glass hidden">
+        <div id="resultModal" class="result-modal hidden">
           <div class="result-content">
-            <h3>✨ You got: <strong id="resultText"></strong>!</h3>
+            <h3>You got: <strong id="resultText"></strong>!</h3>
             <div id="regretPrompt" class="regret-prompt hidden">
-              <button class="btn btn-emerald" onclick="app.handleRegret('satisfied')">Loved it!</button>
-              <button class="btn btn-danger" onclick="app.handleRegret('regret')">Regret it!</button>
+              <button class="btn" onclick="app.handleRegret('satisfied')">Loved it!</button>
+              <button class="btn" onclick="app.handleRegret('regret')">Regret it!</button>
             </div>
             <p id="regretStatusMessage" class="hidden status-message"></p>
-            <button class="btn btn-outline" style="margin-top: 1.5rem; border-color: rgba(255,255,255,0.2);" onclick="app.closeResult()">Spin Again</button>
+            <button class="btn btn-outline" style="margin-top: 15px;" onclick="app.closeResult()">Spin Again</button>
           </div>
         </div>
       </section>
-
-
 
     </div>
   </main>
 
   <!-- Auth Modal -->
-  <div id="authModal" class="result-modal glass hidden" style="z-index: 1000;">
-    <div class="result-content" style="max-width: 400px; width: 90%;">
-      <h2 class="main-title" style="font-size: 2rem; margin-bottom: 1.5rem;" id="authTitle">Welcome Back</h2>
+  <div id="authModal" class="result-modal hidden">
+    <div class="result-content">
+      <h2 class="main-title" id="authTitle">Welcome Back</h2>
       
-      <form id="authForm" style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
-        <div>
-          <label style="font-size: 0.9rem; color: #a1a1aa; margin-bottom: 0.3rem; display: block;">Email</label>
-          <input type="email" id="authEmail" class="option-input" placeholder="you@example.com" required style="width: 100%; box-sizing: border-box;" />
+      <form id="authForm" style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <label style="width: 80px; text-align: right; margin-right: 15px;">Email</label>
+          <input type="email" id="authEmail" class="option-input" required style="flex: 1;" />
         </div>
-        <div>
-          <label style="font-size: 0.9rem; color: #a1a1aa; margin-bottom: 0.3rem; display: block;">Password</label>
-          <input type="password" id="authPassword" class="option-input" placeholder="••••••••" required style="width: 100%; box-sizing: border-box;" />
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <label style="width: 80px; text-align: right; margin-right: 15px;">Password</label>
+          <input type="password" id="authPassword" class="option-input" required style="flex: 1;" />
         </div>
-        <p id="authErrorMsg" class="status-message" style="color: var(--danger-color); font-size: 0.9rem; margin: 0;"></p>
+        <p id="authErrorMsg" class="status-message" style="color: red;"></p>
         
-        <button type="submit" id="authSubmitBtn" class="btn" style="background: var(--primary-color); border: none; margin-top: 1rem;">Log In</button>
+        <button type="submit" id="authSubmitBtn" class="btn">Log In</button>
       </form>
       
-      <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #a1a1aa;">
+      <div style="margin-top: 15px;">
         <span id="authToggleText">Don't have an account?</span> 
-        <button id="authToggleBtn" style="background: none; border: none; color: var(--secondary-glow); cursor: pointer; font-family: inherit; font-size: inherit; text-decoration: underline;">Sign Up</button>
+        <button id="authToggleBtn" class="btn">Sign Up</button>
       </div>
     </div>
   </div>

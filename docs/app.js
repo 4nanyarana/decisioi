@@ -16,29 +16,15 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-
-
-const easeOut = (t, b, c, d) => {
-  const ts = (t /= d) * t;
-  const tc = ts * t;
-  return b + c * (tc + -3 * ts + 3 * t);
-};
-
-const HSL_COLORS = [
-  'hsl(330, 80%, 60%)', 'hsl(260, 80%, 65%)', 'hsl(190, 80%, 55%)',
-  'hsl(140, 70%, 50%)', 'hsl(40,  90%, 55%)', 'hsl(10,  80%, 60%)'
-];
-
 class DecisioApp {
   constructor() {
     this.options = [
-      { id: 1, text: 'Pizza', weight: 1 },
-      { id: 2, text: 'Burgers', weight: 1 },
-      { id: 3, text: 'Tacos', weight: 1 }
+      { id: 1, text: 'Pizza' },
+      { id: 2, text: 'Burgers' },
+      { id: 3, text: 'Tacos' }
     ];
     this.isSpinning = false;
     this.result = null;
-    this.spins = [];
     this.currentUser = null;
 
     this.cacheDOM();
@@ -104,13 +90,11 @@ class DecisioApp {
         this.authModal.classList.add('hidden');
         this.logoutBtn.classList.remove('hidden');
         this.greetingUser.innerText = user.email.split('@')[0];
-        this.loadStats();
       } else {
         this.currentUser = null;
         this.authModal.classList.remove('hidden');
         this.logoutBtn.classList.add('hidden');
         this.greetingUser.innerText = 'Decisive One';
-        this.loadStats();
       }
     });
   }
@@ -132,8 +116,6 @@ class DecisioApp {
     this.spinBtn.addEventListener('click', () => this.spin());
   }
 
-
-
   resetOverthinking() {
     this.resultModal.classList.add('hidden');
     this.result = null;
@@ -141,10 +123,9 @@ class DecisioApp {
 
   // --- Options Management ---
   addOption() {
-    this.options.push({ id: Date.now(), text: '', weight: 1 });
+    this.options.push({ id: Date.now(), text: '' });
     this.resetOverthinking();
     this.renderOptions();
-    this.updateWheelCSS();
   }
 
   updateOption(id, text) {
@@ -152,7 +133,6 @@ class DecisioApp {
     if (opt) {
       opt.text = text;
       this.resetOverthinking();
-      this.updateWheelCSS();
     }
   }
 
@@ -161,17 +141,6 @@ class DecisioApp {
     this.options = this.options.filter(o => o.id !== id);
     this.resetOverthinking();
     this.renderOptions();
-    this.updateWheelCSS();
-  }
-
-  toggleWeight(id) {
-    const opt = this.options.find(o => o.id === id);
-    if (opt) {
-      opt.weight = opt.weight === 1 ? 3 : 1;
-      this.resetOverthinking();
-      this.renderOptions();
-      this.updateWheelCSS();
-    }
   }
 
   renderOptions() {
@@ -179,12 +148,6 @@ class DecisioApp {
     this.options.forEach((opt, idx) => {
       const dv = document.createElement('div');
       dv.className = 'option-entry';
-      
-      const starBtn = document.createElement('button');
-      starBtn.className = `weight-btn ${opt.weight > 1 ? 'active' : ''}`;
-      starBtn.innerHTML = '★';
-      starBtn.title = "Toggle Favorite (Weighted Spin)";
-      starBtn.onclick = () => this.toggleWeight(opt.id);
 
       const inp = document.createElement('input');
       inp.type = 'text';
@@ -193,7 +156,6 @@ class DecisioApp {
       inp.placeholder = `Option ${idx + 1}`;
       inp.oninput = (e) => this.updateOption(opt.id, e.target.value);
 
-      dv.appendChild(starBtn);
       dv.appendChild(inp);
 
       if (this.options.length > 2) {
@@ -208,13 +170,8 @@ class DecisioApp {
     });
   }
 
-  // --- Wheel CSS Generation ---
   getValidOptions() {
     return this.options.filter(o => o.text.trim() !== '');
-  }
-
-  updateWheelCSS() {
-    // Keep function signature empty to satisfy event calls without breaking UI
   }
 
   // --- Spinning Logic ---
@@ -227,7 +184,7 @@ class DecisioApp {
     this.spinBtn.disabled = true;
     this.spinBtn.innerText = "SHUFFLING...";
 
-    const spinTimeTotal = 3000;
+    const spinTimeTotal = 2000;
     let spinTime = 0;
     const intervalTime = 100;
 
@@ -236,7 +193,6 @@ class DecisioApp {
       
       const randomIndex = Math.floor(Math.random() * valid.length);
       this.shuffleText.innerText = valid[randomIndex].text;
-
 
       if (spinTime >= spinTimeTotal) {
         clearInterval(shuffleInterval);
@@ -250,19 +206,9 @@ class DecisioApp {
     this.spinBtn.disabled = false;
     this.spinBtn.innerText = "SHUFFLE";
 
-
-    // Weighted random selection
-    const totalWeights = valid.reduce((sum, opt) => sum + opt.weight, 0);
-    let randomVal = Math.random() * totalWeights;
-    
-    let winner = valid[0];
-    for (let opt of valid) {
-      if (randomVal < opt.weight) {
-        winner = opt;
-        break;
-      }
-      randomVal -= opt.weight;
-    }
+    // Plain random selection
+    const randomIndex = Math.floor(Math.random() * valid.length);
+    const winner = valid[randomIndex];
 
     this.shuffleText.innerText = winner.text;
     this.result = { ...winner };
@@ -289,8 +235,6 @@ class DecisioApp {
     } else {
       this.fallbackLocalStorageSave(winner, valid);
     }
-
-    this.loadStats();
   }
 
   fallbackLocalStorageSave(winner, valid) {
@@ -308,7 +252,8 @@ class DecisioApp {
     localStorage.setItem('decisio_spins', JSON.stringify(saved.slice(0, 50)));
     this.result.dbId = localId;
   }
-  // --- Regret & Stats ---
+
+  // --- Regret ---
   async handleRegret(status) {
     if (!this.result || !this.result.dbId) return;
 
@@ -332,28 +277,16 @@ class DecisioApp {
     
     if (status === 'satisfied') {
       this.regretStatusMessage.innerText = "You're satisfied with this choice!";
-      this.regretStatusMessage.style.color = 'var(--secondary-glow)';
+      this.regretStatusMessage.style.color = 'green';
     } else {
       this.regretStatusMessage.innerText = "You regret this choice! Spin again next time.";
-      this.regretStatusMessage.style.color = 'var(--danger-color)';
+      this.regretStatusMessage.style.color = 'red';
     }
-
-    this.loadStats();
   }
 
   closeResult() {
     this.resultModal.classList.add('hidden');
-    // We do NOT set result to null here immediately so that we don't accidentally erase history,
-    // but we can call resetOverthinking to get the meter going again.
     this.resetOverthinking();
-  }
-
-  async loadStats() {
-    // Analytics removed
-  }
-
-  renderStats() {
-    // Analytics removed
   }
 }
 
