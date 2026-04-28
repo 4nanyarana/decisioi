@@ -36,65 +36,24 @@ class DecisioApp {
   }
 
   setupAuth() {
-    this.authModal = document.getElementById('authModal');
-    this.authForm = document.getElementById('authForm');
-    this.authEmail = document.getElementById('authEmail');
-    this.authPassword = document.getElementById('authPassword');
-    this.authSubmitBtn = document.getElementById('authSubmitBtn');
-    this.authToggleBtn = document.getElementById('authToggleBtn');
-    this.authToggleText = document.getElementById('authToggleText');
-    this.authTitle = document.getElementById('authTitle');
-    this.authErrorMsg = document.getElementById('authErrorMsg');
     this.logoutBtn = document.getElementById('logoutBtn');
     this.greetingUser = document.getElementById('greetingUser');
-    this.isLoginMode = true;
-
-    // Toggle Login/Signup
-    this.authToggleBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.isLoginMode = !this.isLoginMode;
-      this.authTitle.innerText = this.isLoginMode ? 'Welcome Back' : 'Create Account';
-      this.authSubmitBtn.innerText = this.isLoginMode ? 'Log In' : 'Sign Up';
-      this.authToggleText.innerText = this.isLoginMode ? "Don't have an account?" : "Already have an account?";
-      this.authToggleBtn.innerText = this.isLoginMode ? "Sign Up" : "Log In";
-      this.authErrorMsg.innerText = '';
-    });
-
-    // Handle Form Submit
-    this.authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = this.authEmail.value;
-      const pwd = this.authPassword.value;
-      this.authErrorMsg.innerText = '';
-      this.authSubmitBtn.disabled = true;
-
-      try {
-        if (this.isLoginMode) {
-          await auth.signInWithEmailAndPassword(email, pwd);
-        } else {
-          await auth.createUserWithEmailAndPassword(email, pwd);
-        }
-      } catch (err) {
-        this.authErrorMsg.innerText = err.message;
-      }
-      this.authSubmitBtn.disabled = false;
-    });
 
     // Handle Logout
-    this.logoutBtn.addEventListener('click', () => auth.signOut());
+    if (this.logoutBtn) {
+      this.logoutBtn.addEventListener('click', () => auth.signOut());
+    }
 
     // Watch Auth State
     auth.onAuthStateChanged(user => {
       if (user) {
         this.currentUser = user;
-        this.authModal.classList.add('hidden');
-        this.logoutBtn.classList.remove('hidden');
-        this.greetingUser.innerText = user.email.split('@')[0];
+        if (this.logoutBtn) this.logoutBtn.classList.remove('hidden');
+        if (this.greetingUser) this.greetingUser.innerText = user.email.split('@')[0];
       } else {
         this.currentUser = null;
-        this.authModal.classList.remove('hidden');
-        this.logoutBtn.classList.add('hidden');
-        this.greetingUser.innerText = 'Decisive One';
+        // Redirect to login page
+        window.location.href = 'login.html';
       }
     });
   }

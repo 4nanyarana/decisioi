@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Decisio - Login</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  
+  <main class="dashboard-container" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <div class="result-modal" style="position: relative; top: 0; left: 0; transform: none; width: 100%; max-width: 400px; display: block; z-index: 10;">
+      <div class="result-content" style="padding: 2rem;">
+        <div class="logo" style="margin-bottom: 2rem; justify-content: center;">DECISIO</div>
+        <h2 class="main-title" id="authTitle" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Welcome Back</h2>
+        
+        <form id="authForm" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+            <input type="email" id="authEmail" class="option-input" required style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Password</label>
+            <input type="password" id="authPassword" class="option-input" required style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <p id="authErrorMsg" class="status-message" style="color: red; margin: 0; font-size: 0.9rem;"></p>
+          
+          <button type="submit" id="authSubmitBtn" class="btn" style="width: 100%; margin-top: 10px;">Log In</button>
+        </form>
+        
+        <div style="margin-top: 20px; font-size: 0.9rem;">
+          <span id="authToggleText" style="opacity: 0.8;">Don't have an account?</span> 
+          <button id="authToggleBtn" class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px;">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

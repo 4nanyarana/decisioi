@@ -26,6 +26,7 @@
       <div class="header-nav">
         <!-- Dashboard info -->
         <span class="greeting">Hello, <strong id="greetingUser">Decisive One</strong></span>
+        <a href="history.html" class="btn btn-outline" style="text-decoration: none; margin-left: 15px;">History</a>
         <button id="logoutBtn" class="btn hidden">Logout</button>
       </div>
     </header>
@@ -69,31 +70,6 @@
     </div>
   </main>
 
-  <!-- Auth Modal -->
-  <div id="authModal" class="result-modal hidden">
-    <div class="result-content">
-      <h2 class="main-title" id="authTitle">Welcome Back</h2>
-      
-      <form id="authForm" style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <label style="width: 80px; text-align: right; margin-right: 15px;">Email</label>
-          <input type="email" id="authEmail" class="option-input" required style="flex: 1;" />
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <label style="width: 80px; text-align: right; margin-right: 15px;">Password</label>
-          <input type="password" id="authPassword" class="option-input" required style="flex: 1;" />
-        </div>
-        <p id="authErrorMsg" class="status-message" style="color: red;"></p>
-        
-        <button type="submit" id="authSubmitBtn" class="btn">Log In</button>
-      </form>
-      
-      <div style="margin-top: 15px;">
-        <span id="authToggleText">Don't have an account?</span> 
-        <button id="authToggleBtn" class="btn">Sign Up</button>
-      </div>
-    </div>
-  </div>
 
   <script src="app.js"></script>
 </body>
