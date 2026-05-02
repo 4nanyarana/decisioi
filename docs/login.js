@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await auth.createUserWithEmailAndPassword(email, pwd);
       }
       // Redirect to main interface on success
-      window.location.href = 'index.html';
+      window.location.href = 'app.html';
     } catch (err) {
       authErrorMsg.innerText = err.message;
       authSubmitBtn.disabled = false;
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Watch Auth State - if already logged in, redirect
   auth.onAuthStateChanged(user => {
     if (user) {
-      window.location.href = 'index.html';
+      window.location.href = 'app.html';
     }
   });
 });

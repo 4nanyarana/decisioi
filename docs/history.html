@@ -23,8 +23,12 @@
       <div class="logo">
         DECISIO
       </div>
+      <nav class="main-nav">
+        <a href="app.html" class="nav-link">Home</a>
+        <a href="history.html" class="nav-link active">History</a>
+        <a href="about.html" class="nav-link">About</a>
+      </nav>
       <div class="header-nav">
-        <a href="index.html" class="btn btn-outline" style="text-decoration: none; margin-right: 15px;">Back to App</a>
         <button id="logoutBtn" class="btn hidden">Logout</button>
       </div>
     </header>
@@ -44,7 +48,10 @@
           </div>
         </div>
 
-        <h3 class="subsection-title">Recent Activity</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+          <h3 class="subsection-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Recent Activity</h3>
+          <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem; width: auto; color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3);" onclick="clearHistory()">Clear History</button>
+        </div>
         <ul id="statsList" class="activity-list">
           <!-- JS will populate stats here -->
         </ul>

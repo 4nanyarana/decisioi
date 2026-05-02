@@ -53,7 +53,7 @@ class DecisioApp {
       } else {
         this.currentUser = null;
         // Redirect to login page
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
       }
     });
   }
@@ -187,6 +187,18 @@ class DecisioApp {
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         this.result.dbId = docRef.id;
+
+        // Force local save for redundancy
+        const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+        saved.unshift({
+          _id: docRef.id,
+          options: valid.map(o => o.text.trim()),
+          result: winner.text,
+          regretStatus: 'pending',
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('decisio_spins', JSON.stringify(saved.slice(0, 50)));
+
       } catch(e) {
         console.error("Firebase save error", e);
         this.fallbackLocalStorageSave(winner, valid);
@@ -224,12 +236,12 @@ class DecisioApp {
       } catch (e) {
         console.error("Firebase update error", e);
       }
-    } else {
-      // Local storage fallback
-      const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
-      const updated = saved.map(s => s._id === this.result.dbId ? { ...s, regretStatus: status } : s);
-      localStorage.setItem('decisio_spins', JSON.stringify(updated));
     }
+    
+    // Always update local storage for redundancy
+    const saved = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+    const updated = saved.map(s => (s._id === this.result.dbId || (s._id && s._id.toString() === this.result.dbId.toString())) ? { ...s, regretStatus: status } : s);
+    localStorage.setItem('decisio_spins', JSON.stringify(updated));
 
     this.regretPrompt.classList.add('hidden');
     this.regretStatusMessage.classList.remove('hidden');
@@ -246,6 +258,30 @@ class DecisioApp {
   closeResult() {
     this.resultModal.classList.add('hidden');
     this.resetOverthinking();
+  }
+
+  // --- New Features ---
+  handleCategoryChange(category) {
+    if (category === 'food') {
+      this.options = ['Pizza', 'Burgers', 'Tacos', 'Sushi', 'Pasta'].map((text, idx) => ({ id: Date.now() + idx, text }));
+    } else if (category === 'movies') {
+      this.options = ['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi'].map((text, idx) => ({ id: Date.now() + idx, text }));
+    } else if (category === 'study') {
+      this.options = ['Math', 'Science', 'History', 'Literature', 'Coding'].map((text, idx) => ({ id: Date.now() + idx, text }));
+    } else {
+      // custom: reset to empty 2 options
+      this.options = [{ id: Date.now(), text: '' }, { id: Date.now()+1, text: '' }];
+    }
+    this.resetOverthinking();
+    this.renderOptions();
+  }
+
+  copyResult() {
+    if (this.result) {
+      navigator.clipboard.writeText(this.result.text).then(() => {
+        alert("Copied to clipboard: " + this.result.text);
+      });
+    }
   }
 }
 

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Decisio - Just Spin It</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  
+  <main class="dashboard-container">
+    <header class="app-header">
+      <div class="logo">
+        DECISIO
+      </div>
+      <nav class="main-nav">
+        <a href="app.html" class="nav-link active">Home</a>
+        <a href="history.html" class="nav-link">History</a>
+        <a href="about.html" class="nav-link">About</a>
+      </nav>
+      <div class="header-nav">
+        <span class="greeting hidden" id="greetingUserContainer">Hello, <strong id="greetingUser">Decisive One</strong></span>
+        <button id="logoutBtn" class="btn hidden">Logout</button>
+      </div>
+    </header>
+
+    <div class="content-grid">
+      <!-- Options Sidebar -->
+      <section class="panel options-panel">
+        <h2 class="panel-title">Decision Options</h2>
+        
+        <div class="category-selector" style="margin-bottom: 15px;">
+          <label style="display:block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem;">Category:</label>
+          <select id="categorySelect" class="option-input" style="width: 100%;" onchange="app.handleCategoryChange(this.value)">
+            <option value="custom">Custom (Type below)</option>
+            <option value="food">Food (Pizza, Burgers...)</option>
+            <option value="movies">Movies (Action, Comedy...)</option>
+            <option value="study">Study (Math, Science...)</option>
+          </select>
+        </div>
+
+        <div id="optionsList" class="options-list">
+          <!-- JS will populate options here -->
+        </div>
+        
+        <button id="addOptionBtn" class="btn btn-outline">+ Add Option</button>
+      </section>
+
+      <!-- Center Wheel Area -->
+      <section class="wheel-section">
+        <h1 class="main-title">Stop overthinking. <br/><span class="highlight">Just decide.</span></h1>
+        
+        <div class="shuffle-container">
+          <div id="shuffleBox" class="shuffle-box">
+            <span id="shuffleText">Ready?</span>
+          </div>
+          <button id="spinBtn" class="spin-center-btn">SHUFFLE</button>
+        </div>
+
+        <div id="resultModal" class="result-modal hidden">
+          <div class="result-content">
+            <h3>You got: <strong id="resultText"></strong>!</h3>
+            <div id="regretPrompt" class="regret-prompt hidden">
+              <button class="btn" onclick="app.handleRegret('satisfied')">Loved it!</button>
+              <button class="btn" onclick="app.handleRegret('regret')">Regret it!</button>
+            </div>
+            <p id="regretStatusMessage" class="hidden status-message"></p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+              <button class="btn btn-outline" style="flex: 1;" onclick="app.closeResult()">Spin Again</button>
+              <button class="btn" style="flex: 1; background: var(--secondary-glow);" onclick="app.copyResult()">Copy Result</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+
+  <script src="app.js"></script>
+</body>
+</html>

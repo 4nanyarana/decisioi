@@ -45,6 +45,32 @@ body {
   border: 1px solid var(--panel-border);
   border-radius: 12px;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.main-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--text-main);
+}
+
+.nav-link.active {
+  color: var(--primary-glow);
+  border-bottom-color: var(--primary-glow);
 }
 
 .logo {
@@ -260,4 +286,109 @@ body {
 .status-message {
   margin-top: 1rem;
   font-size: 0.9rem;
+}
+
+/* History Page Styles */
+.stats-cards {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  flex: 1;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.text-emerald {
+  color: var(--secondary-glow);
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.subsection-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 0.5rem;
+}
+
+.activity-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.activity-item {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--panel-border);
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activity-item .options {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.activity-item strong {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--primary-glow);
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.badge-satisfied {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--secondary-glow);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-regret {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Category Selector Improvements */
+.category-selector select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="rgba(255,255,255,0.7)" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position-x: 95%;
+  background-position-y: 50%;
+  cursor: pointer;
+}
+
+.category-selector select option {
+  background-color: var(--panel-bg);
+  color: var(--text-main);
+  padding: 10px;
 }

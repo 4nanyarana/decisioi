@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Decisio - About</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  
+  <main class="dashboard-container">
+    <header class="app-header">
+      <div class="logo">
+        DECISIO
+      </div>
+      <nav class="main-nav">
+        <a href="app.html" class="nav-link">Home</a>
+        <a href="history.html" class="nav-link">History</a>
+        <a href="about.html" class="nav-link active">About</a>
+      </nav>
+      <div class="header-nav">
+        <button id="logoutBtn" class="btn hidden">Logout</button>
+      </div>
+    </header>
+
+    <div class="content-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
+      <section class="panel stats-panel" style="width: 100%;">
+        <h2 class="panel-title" style="font-size: 2rem; color: var(--primary-glow); margin-bottom: 1.5rem;">About Decisio</h2>
+        
+        <div style="line-height: 1.6; font-size: 1.05rem;">
+          <h3 class="subsection-title">Purpose</h3>
+          <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
+            Decisio was created to eliminate decision fatigue. Whether you're struggling to choose what to eat, what movie to watch, or what task to tackle next, Decisio makes the process effortless. Stop overthinking and just spin it!
+          </p>
+
+          <h3 class="subsection-title">Features</h3>
+          <ul style="margin-bottom: 1.5rem; color: var(--text-muted); padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.5rem;">Dynamic Shuffle Box for randomized decisions</li>
+            <li style="margin-bottom: 0.5rem;">Quick Presets for common categories (Food, Movies, Study)</li>
+            <li style="margin-bottom: 0.5rem;">Decision History tracking to reflect on your choices</li>
+            <li style="margin-bottom: 0.5rem;">Regret Tracker to measure your satisfaction rate</li>
+          </ul>
+
+          <h3 class="subsection-title">Technologies Used</h3>
+          <ul style="color: var(--text-muted); padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.5rem;"><strong>Frontend:</strong> Vanilla HTML, CSS, JavaScript</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Backend & Auth:</strong> Firebase Firestore & Authentication</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Typography:</strong> Google Fonts (Outfit)</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdY5PFd10UxsucH0WAHtZh33yAbWIsy9Y",
+      authDomain: "decisio-1306.firebaseapp.com",
+      projectId: "decisio-1306",
+      storageBucket: "decisio-1306.firebasestorage.app",
+      messagingSenderId: "964454907003",
+      appId: "1:964454907003:web:382da474360027add536de",
+      measurementId: "G-8CHQ5QD19Q"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', () => {
+        auth.signOut().then(() => {
+          window.location.href = 'index.html';
+        });
+      });
+
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          logoutBtn.classList.remove('hidden');
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

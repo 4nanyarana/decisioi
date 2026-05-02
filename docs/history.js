@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle Logout
   logoutBtn.addEventListener('click', () => {
     auth.signOut().then(() => {
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
     });
   });
 
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loadFirebaseStats(user.uid);
     } else {
       currentUser = null;
-      window.location.href = 'login.html'; // Require login to view history
+      window.location.href = 'index.html'; // Require login to view history
       // Alternatively, we could load local stats if we wanted to allow guests:
       // logoutBtn.classList.add('hidden');
       // loadLocalStats();
@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const snapshot = await db.collection("spins")
                                .where("userId", "==", uid)
-                               .orderBy("timestamp", "desc")
                                .limit(50)
                                .get();
       
@@ -56,7 +55,33 @@ document.addEventListener('DOMContentLoaded', () => {
       snapshot.forEach(doc => {
         spins.push({ id: doc.id, ...doc.data() });
       });
-      renderStats(spins);
+      
+      // Merge with local storage spins in case Firebase writes failed
+      const localSpins = JSON.parse(localStorage.getItem('decisio_spins') || '[]');
+      const allSpins = [...spins];
+      
+      localSpins.forEach(ls => {
+        if (!allSpins.find(s => s.id === ls._id)) {
+          allSpins.push({
+            id: ls._id,
+            options: ls.options,
+            result: ls.result,
+            regretStatus: ls.regretStatus,
+            timestamp: { toMillis: () => new Date(ls.timestamp).getTime() }
+          });
+        }
+      });
+
+      // Sort by timestamp descending
+      allSpins.sort((a, b) => {
+        let tA = 0;
+        let tB = 0;
+        if (a.timestamp && typeof a.timestamp.toMillis === 'function') tA = a.timestamp.toMillis() || 0;
+        if (b.timestamp && typeof b.timestamp.toMillis === 'function') tB = b.timestamp.toMillis() || 0;
+        return tB - tA;
+      });
+      
+      renderStats(allSpins);
     } catch(e) {
       console.error("Error fetching stats:", e);
       loadLocalStats(); // Fallback
@@ -72,6 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
     statsList.innerHTML = '';
     let satisfied = 0;
     let totalRegretChecked = 0;
+    
+    if (spins.length === 0) {
+      statsList.innerHTML = '<li class="activity-item" style="justify-content: center; color: var(--text-muted); font-style: italic;">No decisions made yet. Go spin!</li>';
+    }
 
     spins.forEach(s => {
       const li = document.createElement('li');
@@ -105,4 +134,26 @@ document.addEventListener('DOMContentLoaded', () => {
       successRateStat.innerText = '-';
     }
   }
+
+  // Feature: Clear History
+  window.clearHistory = async function() {
+    if (!confirm("Are you sure you want to clear your decision history?")) return;
+    if (currentUser) {
+      try {
+        const snapshot = await db.collection("spins").where("userId", "==", currentUser.uid).get();
+        const batch = db.batch();
+        snapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+        localStorage.removeItem('decisio_spins');
+        renderStats([]);
+      } catch (e) {
+        console.error("Error clearing history", e);
+      }
+    } else {
+      localStorage.removeItem('decisio_spins');
+      renderStats([]);
+    }
+  };
 });

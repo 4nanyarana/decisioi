@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Decisio - Just Spin It</title>
+  <title>Decisio - Login</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,59 +18,34 @@
 </head>
 <body>
   
-  <main class="dashboard-container">
-    <header class="app-header">
-      <div class="logo">
-        DECISIO
+  <main class="dashboard-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center;">
+    <div style="width: 100%; max-width: 400px; padding: 2rem;">
+      <div class="logo" style="margin-bottom: 2rem; justify-content: center; font-size: 5rem; letter-spacing: 6px; color: var(--primary-glow); text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);">DECISIO</div>
+      <h2 class="main-title" id="authTitle" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Welcome Back</h2>
+      
+      <form id="authForm" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+          <input type="email" id="authEmail" class="option-input" required style="width: 100%; box-sizing: border-box;" />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600;">Password</label>
+          <input type="password" id="authPassword" class="option-input" required style="width: 100%; box-sizing: border-box;" />
+        </div>
+        <p id="authErrorMsg" class="status-message" style="color: red; margin: 0; font-size: 0.9rem;"></p>
+        
+        <button type="submit" id="authSubmitBtn" class="btn" style="width: 100%; margin-top: 10px;">Log In</button>
+      </form>
+      
+      <div style="margin-top: 20px; font-size: 0.9rem;">
+        <span id="authToggleText" style="opacity: 0.8;">Don't have an account?</span> 
+        <button id="authToggleBtn" class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px;">Sign Up</button>
       </div>
-      <div class="header-nav">
-        <!-- Dashboard info -->
-        <span class="greeting">Hello, <strong id="greetingUser">Decisive One</strong></span>
-        <a href="history.html" class="btn btn-outline" style="text-decoration: none; margin-left: 15px;">History</a>
-        <button id="logoutBtn" class="btn hidden">Logout</button>
-      </div>
-    </header>
 
-    <div class="content-grid">
-      <!-- Options Sidebar -->
-      <section class="panel options-panel">
-        <h2 class="panel-title">Decision Options</h2>
-        
-        <div id="optionsList" class="options-list">
-          <!-- JS will populate options here -->
-        </div>
-        
-        <button id="addOptionBtn" class="btn btn-outline">+ Add Option</button>
-      </section>
-
-      <!-- Center Wheel Area -->
-      <section class="wheel-section">
-        <h1 class="main-title">Stop overthinking. <br/><span class="highlight">Just decide.</span></h1>
-        
-        <div class="shuffle-container">
-          <div id="shuffleBox" class="shuffle-box">
-            <span id="shuffleText">Ready?</span>
-          </div>
-          <button id="spinBtn" class="spin-center-btn">SHUFFLE</button>
-        </div>
-
-        <div id="resultModal" class="result-modal hidden">
-          <div class="result-content">
-            <h3>You got: <strong id="resultText"></strong>!</h3>
-            <div id="regretPrompt" class="regret-prompt hidden">
-              <button class="btn" onclick="app.handleRegret('satisfied')">Loved it!</button>
-              <button class="btn" onclick="app.handleRegret('regret')">Regret it!</button>
-            </div>
-            <p id="regretStatusMessage" class="hidden status-message"></p>
-            <button class="btn btn-outline" style="margin-top: 15px;" onclick="app.closeResult()">Spin Again</button>
-          </div>
-        </div>
-      </section>
 
     </div>
   </main>
 
-
-  <script src="app.js"></script>
+  <script src="login.js"></script>
 </body>
 </html>
